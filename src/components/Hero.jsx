@@ -5,9 +5,9 @@ export default function Hero({ setBookingModal }) {
   const [currentSlide, setCurrentSlide] = useState(0);
   
   const heroImages = [
-    'linear-gradient(135deg, rgba(245, 241, 237, 0.9) 0%, rgba(232, 223, 216, 0.9) 100%), url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 1200 800%27%3E%3Crect fill=%27%23f5f1ed%27 width=%271200%27 height=%27800%27/%3E%3C/svg%3E")',
-    'linear-gradient(135deg, rgba(237, 232, 227, 0.9) 0%, rgba(221, 210, 202, 0.9) 100%)',
-    'linear-gradient(135deg, rgba(240, 233, 226, 0.9) 0%, rgba(224, 213, 204, 0.9) 100%)',
+    'linear-gradient(135deg, rgba(245, 241, 237, 0.95) 0%, rgba(232, 223, 216, 0.95) 100%)',
+    'linear-gradient(135deg, rgba(237, 232, 227, 0.95) 0%, rgba(221, 210, 202, 0.95) 100%)',
+    'linear-gradient(135deg, rgba(240, 233, 226, 0.95) 0%, rgba(224, 213, 204, 0.95) 100%)',
   ];
 
   useEffect(() => {
@@ -15,17 +15,13 @@ export default function Hero({ setBookingModal }) {
       setCurrentSlide((prev) => (prev + 1) % heroImages.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, []); // 依存配列を空にする（マウント時のみ実行）
 
   return (
     <section className="pt-20 relative h-screen flex items-center justify-center overflow-hidden">
       <div
-        className="absolute inset-0 transition-all duration-1000 bg-cover bg-center"
-        style={{ 
-          background: heroImages[currentSlide],
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}
+        className="absolute inset-0 transition-all duration-1000"
+        style={{ background: heroImages[currentSlide] }}
       />
       <div className="absolute top-20 right-10 w-64 h-64 bg-purple-100 rounded-full opacity-20 blur-3xl" />
       <div className="absolute bottom-0 left-10 w-96 h-96 bg-purple-50 rounded-full opacity-20 blur-3xl" />
