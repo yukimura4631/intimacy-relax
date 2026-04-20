@@ -1,978 +1,959 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
+import { X, Menu } from 'lucide-react';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import AdminNews from './AdminNews';
+import { isSupabaseConfigured, supabase, supabaseConfigWarning } from './supabaseClient';
 
-import { ChevronDown, Phone, Instagram, ChevronRight, X, Menu } from 'lucide-react';
-
-
-
-
-
-export default function App() {
-
-
+function MainSite() {
+  const [isMobile, setIsMobile] = useState(() => window.matchMedia('(max-width: 768px)').matches);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-
-  const [bookingModal, setBookingModal] = useState(false);
-
-
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [menuSlideIndex, setMenuSlideIndex] = useState(0);
+  const menuTouchStartX = useRef(null);
+  const [menuModalOpen, setMenuModalOpen] = useState(false);
+  const [newsImageModalOpen, setNewsImageModalOpen] = useState(false);
+  const [newsImageModalUrl, setNewsImageModalUrl] = useState('');
+  const [newsImageModalAlt, setNewsImageModalAlt] = useState('');
 
-
-
-
-
-  const heroImages = [
-
-
-    'linear-gradient(135deg, rgba(245, 241, 237, 0.95) 0%, rgba(232, 223, 216, 0.95) 100%)',
-
-
-    'linear-gradient(135deg, rgba(237, 232, 227, 0.95) 0%, rgba(221, 210, 202, 0.95) 100%)',
-
-
-    'linear-gradient(135deg, rgba(240, 233, 226, 0.95) 0%, rgba(224, 213, 204, 0.95) 100%)',
-
-
-  ];
-
-
-
-
+  const heroImageSrcs = ['/images/NewTop.png', '/images/TopSecond.png', '/images/TopThird.png'];
 
   useEffect(() => {
-
+    const media = window.matchMedia('(max-width: 768px)');
+    const onChange = (event) => setIsMobile(event.matches);
+    if (typeof media.addEventListener === 'function') media.addEventListener('change', onChange);
+    else media.addListener(onChange);
 
     const interval = setInterval(() => {
-
-
-      setCurrentSlide((prev) => (prev + 1) % heroImages.length);
-
-
+      setCurrentSlide((prev) => (prev + 1) % heroImageSrcs.length);
     }, 5000);
+    return () => {
+      clearInterval(interval);
+      if (typeof media.removeEventListener === 'function') media.removeEventListener('change', onChange);
+      else media.removeListener(onChange);
+    };
+  }, [heroImageSrcs.length]);
 
-
-    return () => clearInterval(interval);
-
-
-  },);
-
-
-
-
+  useEffect(() => {
+    if (!isMobile) setMobileMenuOpen(false);
+  }, [isMobile]);
 
   const menuItems = [
-
-
-    { name: 'メニュー', id: 'menu' },
-
-
-    { name: '施術イメージ', id: 'image' },
-
-
-    { name: 'セラピスト', id: 'therapist' },
-
-
-    { name: '理念', id: 'philosophy' },
-
-
     { name: 'お知らせ', id: 'news' },
-
-
+    { name: 'メニュー', id: 'menu' },
+    // { name: '施術イメージ', id: 'image' },
+    { name: 'セラピスト', id: 'therapist' },
+    { name: '理念', id: 'philosophy' },
     { name: 'アクセス', id: 'access' },
-
-
+    { name: '予約', id: 'booking' },
   ];
-
-
-
-
 
   const scrollToSection = (id) => {
-
-
     const element = document.getElementById(id);
-
-
     element?.scrollIntoView({ behavior: 'smooth' });
-
-
     setMobileMenuOpen(false);
-
-
   };
 
-
-
-
-
-  const services = [
-
-
-    { title: '全身アロマリンパ', duration: '90分/120分', price: '¥9,800～¥12,000', description: '16種類以上の精油からあなたの香りをセレクト。心地よい圧で深層部のコリをほぐします。', bgColor: '#d4c5d9' },
-
-
-    { title: 'ドライヘッドスパ', duration: '40分/60分', price: '¥3,800～¥5,800', description: 'PC作業で疲れた目と脳をリセット。眼精疲労と首肩の硬さを同時にケア。', bgColor: '#e0d8d2' },
-
-
-    { title: '足のむくみケア', duration: '60分/90分', price: '¥6,500～¥9,800', description: '重だるい足のむくみや冷えを徹底ケア。贅沢な個室空間で自分を解放できます。', bgColor: '#e8dfd8' },
-
-
-    { title: 'セルフホワイトニング', duration: '20分', price: '¥2,000', description: 'アロマ香る空間でセルフホワイトニング。リラックスしながら歯を白くできます。', bgColor: '#d9d0d4' },
-
-
+  const menuSlides = [
+    { src: '/images/menu.png', alt: 'メニュー' },
+    { src: '/images/AromaMenu.png', alt: 'アロマメニュー' },
+    { src: '/images/90m.png', alt: '90分メニュー' },
+    { src: '/images/120m.png', alt: '120分メニュー' },
+    { src: '/images/150m.png', alt: '150分メニュー' },
   ];
 
+  const goMenuPrev = () => {
+    setMenuSlideIndex((prev) => (prev - 1 + menuSlides.length) % menuSlides.length);
+  };
 
+  const goMenuNext = () => {
+    setMenuSlideIndex((prev) => (prev + 1) % menuSlides.length);
+  };
 
+  const handleMenuTouchStart = (event) => {
+    menuTouchStartX.current = event.touches[0]?.clientX ?? null;
+  };
 
+  const handleMenuTouchEnd = (event) => {
+    if (menuTouchStartX.current === null) return;
+    const endX = event.changedTouches[0]?.clientX ?? menuTouchStartX.current;
+    const deltaX = endX - menuTouchStartX.current;
+    if (Math.abs(deltaX) > 40) {
+      if (deltaX > 0) {
+        goMenuPrev();
+      } else {
+        goMenuNext();
+      }
+    }
+    menuTouchStartX.current = null;
+  };
 
-  const news = [
+  const openMenuModal = (slideIndex) => {
+    setMenuSlideIndex(slideIndex);
+    setMenuModalOpen(true);
+  };
 
+  const closeMenuModal = () => {
+    setMenuModalOpen(false);
+  };
 
-    { date: '2025-12-15', title: 'セルフホワイトニングメニューを新しくスタート！', content: 'アロマ香る空間での新しい体験。ホワイトニングでさらに美しく。' },
+  const openNewsImageModal = (url, alt) => {
+    setNewsImageModalUrl(url || '');
+    setNewsImageModalAlt(alt || '');
+    setNewsImageModalOpen(Boolean(url));
+  };
 
+  const closeNewsImageModal = () => {
+    setNewsImageModalOpen(false);
+    setNewsImageModalUrl('');
+    setNewsImageModalAlt('');
+  };
 
-    { date: '2025-12-01', title: 'INTIMACY新松戸がOPEN致しました', content: '新しい施設で、さらに快適な環境でのご施術をご用意してお待ちしています。' },
+  const [newsItems, setNewsItems] = useState(() => [
+    {
+      date: '2026-4-20',
+      title: 'HP完成',
+      content: '女性専用リラクゼーションサロン「INTIMACY」',
+    },
+  ]);
+  const [newsLoading, setNewsLoading] = useState(false);
+  const [newsLoadError, setNewsLoadError] = useState('');
 
+  useEffect(() => {
+    let cancelled = false;
 
-  ];
+    const loadNews = async () => {
+      if (!isSupabaseConfigured || !supabase) return;
+      setNewsLoading(true);
+      setNewsLoadError('');
 
+      const { data, error } = await supabase
+        .from('news')
+        .select('id,date,title,content,sort_order,image_url')
+        .order('sort_order', { ascending: true, nullsFirst: true })
+        .order('date', { ascending: false });
 
+      if (cancelled) return;
+      if (error) {
+        setNewsLoadError('お知らせの読み込みに失敗しました。時間をおいて再度お試しください。');
+        setNewsLoading(false);
+        return;
+      }
 
+      if (Array.isArray(data) && data.length > 0) setNewsItems(data);
+      setNewsLoading(false);
+    };
 
+    loadNews();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const faq = [
-
-
-    { q: '初めてなんですが、予約の時に何か準備が必要ですか？', a: '特に準備は必要ありません。ご希望があれば、アロマの香りやお悩みについて事前にお聞かせください。' },
-
-
-    { q: 'メンズでも利用できますか？', a: 'もちろんです！男性のお客様もたくさんいらっしゃいます。' },
-
-
-    { q: '当日予約は可能ですか？', a: 'はい。当日予約大歓迎です。お気軽にご連絡ください。' },
-
-
-    { q: '駐車場はありますか？', a: 'サロン敷近くのタイムズパーキングをおすすめしています。' },
-
-
+    {
+      q: '初めてなんですが、予約の時に何か準備が必要ですか？',
+      a: '特に準備は必要ありません。手ぶらでご利用いただけます。',
+    },
+    {
+      q: '当日予約は可能ですか？',
+      a: 'はい。当日予約大歓迎です。お気軽にご連絡ください。',
+    },
+    {
+      q: '駐車場はありますか？',
+      a: 'ご用意がありません。恐れ入りますが、近隣コインパーキングのご利用をお願いいたします。',
+    },
+    {
+      q: 'メンズでも利用できますか？',
+      a: '当店は女性専用サロンとさせていただいております。',
+    },
   ];
 
-
-
-
+  const pageWidth = isMobile ? '92vw' : '70vw';
+  const navHeight = isMobile ? 64 : 80;
 
   const styles = {
-
-
     nav: {
-
-
       position: 'fixed',
-
-
       width: '100%',
-
-
       top: 0,
-
-
       zIndex: 50,
-
-
       backgroundColor: 'rgba(255, 255, 255, 0.95)',
-
-
       boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-
-
-      padding: '1rem 1.5rem',
-
-
-    },    navContainer: {
-      width: '70vw',
+      padding: isMobile ? '0.25rem 0.5rem' : '1rem 1.5rem',
+    },
+    navContainer: {
+      width: pageWidth,
       margin: '0 auto',
-      padding: '0 1rem',
+      padding: isMobile ? 0 : '0 1rem',
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
+      gap: isMobile ? '0.75rem' : undefined,
     },
     contentWrap: {
-      width: '70vw',
+      width: pageWidth,
       margin: '0 auto',
-      padding: '0 1rem',
+      padding: isMobile ? '0 0.75rem' : '0 1rem',
     },
-
-
     hero: {
-
-
-      paddingTop: '80px',
-
-
+      marginTop: `${navHeight+8}px`,
       position: 'relative',
-
-
-      height: '100vh',
-
-
+      minHeight: isMobile ? 'auto' : `calc(100svh - ${navHeight}px)`,
       display: 'flex',
-
-
       alignItems: 'center',
-
-
       justifyContent: 'center',
-
-
       overflow: 'hidden',
-
-
     },
-
-
-    heroBg: {
-
-
-      position: 'absolute',
-
-
-      inset: 0,
-
-
-      transition: 'background 1s ease',
-
-
-      background: heroImages[currentSlide],
-
-
-    },    heroContent: {
-      position: 'relative',
-      zIndex: 10,
-      textAlign: 'center',
-      width: '70vw',
+    heroMedia: {
+      width: pageWidth,
       margin: '0 auto',
-      maxWidth: 'none',
-      padding: '1rem',
+      padding: isMobile ? '1.5rem 0' : '1rem 0',
+      display: 'flex',
+      justifyContent: 'center',
     },
-
-
+    heroImage: {
+      width: '100%',
+      maxWidth: isMobile ? 'min(92vw, 520px)' : 'min(70vw, 860px)',
+      height: 'auto',
+      maxHeight: isMobile ? `calc(56svh - ${navHeight}px)` : `calc(70svh - ${navHeight}px)`,
+      objectFit: 'contain',
+      display: 'block',
+    },
     h1: {
-
-
-      fontSize: '3.5rem',
-
-
+      fontSize: isMobile ? '2.25rem' : '3.5rem',
       fontWeight: 300,
-
-
       color: '#4c1d95',
-
-
       marginBottom: '1rem',
-
-
       letterSpacing: '0.05em',
-
-
     },
-
-
     h3: {
-
-
-      fontSize: '2.25rem',
-
-
-      fontWeight: 300,
-
-
+      fontSize: isMobile ? '1.25rem' : '2rem',
+      fontWeight: 400,
       color: '#4c1d95',
-
-
-      marginBottom: '3rem',
-
-
+      marginBottom: isMobile ? '1rem' : '2rem',
       textAlign: 'center',
-
-
-    },    section: {
-      padding: '5rem 0',
     },
-
-
+    section: {
+      padding: isMobile ? '1rem 0' : '5rem 0',
+      scrollMarginTop: `${navHeight + 8}px`,
+    },
     grid: {
-
-
       display: 'grid',
-
-
-      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-
-
+      gridTemplateColumns: `repeat(auto-fit, minmax(${isMobile ? 240 : 300}px, 1fr))`,
       gap: '2rem',
-
-
     },
-
-
-    card: {
-
-
-      backgroundColor: 'white',
-
-
-      borderRadius: '0.5rem',
-
-
-      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-
-
+    newsScroller: {
+      // display: 'column',
+      flexDirection: 'column',
+      gap: '1.25rem',
+      height: '100%',
+      overflowY: 'auto',
+      paddingRight: '0.5rem',
+      paddingBottom: '0.25rem',
+      WebkitOverflowScrolling: 'touch',
+      overscrollBehaviorY: 'contain',
+      scrollbarGutter: 'stable',
+      scrollbarWidth: 'thin',
+      touchAction: 'pan-y',
+      marginBottom: '2rem',
+    },
+    newsViewport: {
+      height: 'clamp(320px, 60svh, 720px)',
       overflow: 'hidden',
-
-
-      transition: 'box-shadow 0.3s ease',
-
-
+      borderRadius: '0.75rem',
     },
-
-
-    button: {
-
-
-      padding: '0.75rem 2rem',
-
-
-      backgroundColor: '#6b21a8',
-
-
-      color: 'white',
-
-
-      border: 'none',
-
-
-      borderRadius: '9999px',
-
-
+    newsCard: {
+      width: '100%',
+    },
+    newsImageWrap: {
+      width: '100%',
+      height: 'clamp(180px, 32vh, 420px)',
+      overflow: 'hidden',
+      borderRadius: '0.75rem',
+      border: '1px solid rgba(0,0,0,0.06)',
+      backgroundColor: '#f5f3ff',
+      marginBottom: '1rem',
       cursor: 'pointer',
-
-
-      fontSize: '0.875rem',
-
-
-      letterSpacing: '0.05em',
-
-
-      boxShadow: '0 10px 15px rgba(0, 0, 0, 0.1)',
-
-
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
     },
-
-
+    newsImage: {
+      maxWidth: '90%',
+      maxHeight: '90%',
+      width: 'auto',
+      height: 'auto',
+      objectFit: 'contain',
+      display: 'block',
+    },
+    menuScroller: {
+      position: 'relative',
+      overflow: 'hidden',
+      // padding: '1rem 0 2rem',
+    },
+    menuTrack: {
+      display: 'flex',
+      transition: 'transform 0.5s ease',
+    },
+    menuSlide: {
+      minWidth: '100%',
+      display: 'flex',
+      justifyContent: 'center',
+    },
+    menuImage: {
+      width: isMobile ? 'min(100%)' : 'min(60vw, 480px)',
+      height: 'auto',
+      display: 'block',
+      borderRadius: '0.75rem',
+      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
+      backgroundColor: 'white',
+      cursor: 'pointer',
+    },
+    menuArrow: {
+      position: 'absolute',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      width: isMobile ? '36px' : '40px',
+      height: isMobile ? '36px' : '40px',
+      borderRadius: '9999px',
+      border: 'none',
+      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: '#4c1d95',
+      fontSize: isMobile ? '1.1rem' : '1.25rem',
+    },
+    menuDots: {
+      display: 'flex',
+      justifyContent: 'center',
+      gap: '0.5rem',
+      margin: '1rem 0 2rem',
+    },
+    menuDot: {
+      width: '8px',
+      height: '8px',
+      borderRadius: '9999px',
+      border: 'none',
+      backgroundColor: '#d6c7e6',
+      cursor: 'pointer',
+      padding: 0,
+    },
+    menuDotActive: {
+      backgroundColor: '#4c1d95',
+    },
+    menuModalBackdrop: {
+      position: 'fixed',
+      inset: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.65)',
+      zIndex: 60,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '1.5rem',
+    },
+    menuModalBody: {
+      position: 'relative',
+      maxWidth: '500px',
+      width: '100%',
+      backgroundColor: 'white',
+      borderRadius: '1rem',
+      padding: '1rem',
+      boxShadow: '0 24px 60px rgba(0, 0, 0, 0.3)',
+    },
+    menuModalTrack: {
+      display: 'flex',
+      transition: 'transform 0.4s ease',
+    },
+    menuModalSlide: {
+      minWidth: '100%',
+      display: 'flex',
+      justifyContent: 'center',
+    },
+    menuModalImage: {
+      width: '100%',
+      height: 'auto',
+      display: 'block',
+      borderRadius: '0.75rem',
+    },
+    menuModalClose: {
+      position: 'absolute',
+      top: '-14px',
+      right: '-14px',
+      width: '36px',
+      height: '36px',
+      borderRadius: '9999px',
+      border: 'none',
+      backgroundColor: '#4c1d95',
+      color: 'white',
+      cursor: 'pointer',
+      fontSize: '1.1rem',
+      boxShadow: '0 8px 18px rgba(0, 0, 0, 0.2)',
+    },
+    menuModalArrow: {
+      position: 'absolute',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      width: '40px',
+      height: '40px',
+      borderRadius: '9999px',
+      border: 'none',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      boxShadow: '0 6px 16px rgba(0, 0, 0, 0.2)',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: '#4c1d95',
+      fontSize: '1.25rem',
+    },
+    card: {
+      backgroundColor: 'white',
+      borderRadius: '0.5rem',
+      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+      overflow: 'hidden',
+      transition: 'box-shadow 0.3s ease',
+      margin: '0.5rem 0',
+    },
+    mobileMenuBackdrop: {
+      position: 'fixed',
+      inset: 0,
+      zIndex: 55,
+      backgroundColor: 'rgba(0, 0, 0, 0.35)',
+      paddingTop: isMobile ? '76px' : '88px',
+    },
+    mobileMenuPanel: {
+      width: 'min(92vw, 520px)',
+      margin: '0 auto',
+      backgroundColor: 'rgba(255, 255, 255, 0.98)',
+      borderRadius: '1rem',
+      boxShadow: '0 18px 50px rgba(0,0,0,0.18)',
+      overflow: 'hidden',
+    },
+    mobileMenuItem: {
+      width: '100%',
+      padding: '0.95rem 1rem',
+      backgroundColor: 'transparent',
+      border: 'none',
+      textAlign: 'left',
+      cursor: 'pointer',
+      fontSize: '1rem',
+      color: '#374151',
+    },
+    mobileMenuDivider: {
+      height: 1,
+      backgroundColor: '#f3f4f6',
+    },
+    button: {
+      display: 'block',
+      padding: '0.75rem 2rem',
+      backgroundColor: '#6b21a8',
+      color: 'white',
+      border: 'none',
+      borderRadius: '9999px',
+      cursor: 'pointer',
+      fontSize: '0.875rem',
+      letterSpacing: '0.05em',
+      boxShadow: '0 10px 15px rgba(0, 0, 0, 0.1)',
+    },
   };
 
-
-
-
-
   return (
-
-
-    <div style={{ backgroundColor: 'white', minHeight: '100vh', fontFamily: "'Noto Sans JP', sans-serif" }}>
-
-
-      {/* Navigation */}
-
-
+    <div
+      style={{
+        backgroundColor: 'white',
+        backgroundImage: "url('/images/marble-bg.png')",
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: isMobile ? 'scroll' : 'fixed',
+        minHeight: '100%',
+        fontFamily: "'Noto Sans JP', sans-serif",
+      }}
+    >
       <nav style={styles.nav}>
-
-
         <div style={styles.navContainer}>
-
-
-          <div>
-
-
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 300, color: '#6b21a8', margin: 0 }}>INTIMACY</h1>
-
-
-            <p style={{ fontSize: '0.75rem', color: '#6b21a8', margin: 0 }}>新松戸</p>
-
-
-          </div>
-
-
-          <div style={{ display: 'flex', gap: '2rem' }}>
-
-
-            {menuItems.map((item) => (
-
-
-              <button
-
-
-                key={item.id}
-
-
-                onClick={() => scrollToSection(item.id)}
-
-
-                style={{
-
-
-                  fontSize: '0.875rem',
-
-
-                  color: '#374151',
-
-
-                  backgroundColor: 'transparent',
-
-
-                  border: 'none',
-
-
-                  cursor: 'pointer',
-
-
+          <div className="w-full mx-auto h-[74px] flex items-center justify-between px-4 md:px-2 gap-6 relative">
+        {/* ロゴアイコン + タイトル */}
+          <div className="flex items-center gap-3 shrink-0">
+            <img
+              src="/images/INTIMACY.png"
+              alt="INTIMACY Logo Icon"
+              style={{
+                  height: '54px',
+                  width: 'auto',
+                  objectFit: 'contain',
+                  marginTop: '0.4rem',
                 }}
-
-
-              >
-
-
-                {item.name}
-
-
-              </button>
-
-
-            ))}
-
-
+            />
           </div>
-
-
-          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ backgroundColor: 'transparent', border: 'none', cursor: 'pointer' }}>
-
-
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-
-
-          </button>
-
-
         </div>
-
-
+          {!isMobile ? (
+            <div style={{ display: 'flex', gap: '2rem' }}>
+              {menuItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)}
+                  style={{
+                    fontSize: '0.875rem',
+                    color: '#374151',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {item.name}
+                </button>
+              ))}
+            </div>
+          ) : null}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            style={{ backgroundColor: 'transparent', border: 'none', cursor: 'pointer' }}
+            aria-label={mobileMenuOpen ? 'メニューを閉じる' : 'メニューを開く'}
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </nav>
 
-
-
-
-
-      {/* Hero */}
-
+      {isMobile && mobileMenuOpen ? (
+        <div style={styles.mobileMenuBackdrop} onClick={() => setMobileMenuOpen(false)}>
+          <div style={styles.mobileMenuPanel} onClick={(e) => e.stopPropagation()}>
+            {menuItems.map((item, index) => (
+              <React.Fragment key={item.id}>
+                <button type="button" style={styles.mobileMenuItem} onClick={() => scrollToSection(item.id)}>
+                  {item.name}
+                </button>
+                {index === menuItems.length - 1 ? null : <div style={styles.mobileMenuDivider} />}
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       <section style={styles.hero}>
-
-
-        <div style={styles.heroBg} />
-
-
-        <div style={styles.heroContent}>
-
-
-          <h2 style={styles.h1}>INTIMACY</h2>
-
-
-          <p style={{ fontSize: '1.25rem', color: '#6b21a8', marginBottom: '1.5rem', fontWeight: 300 }}>寄り添いの癒し</p>
-
-
-          <p style={{ color: '#374151', marginBottom: '2rem', lineHeight: 1.625 }}>疲れた時に気兼ねなく足を運べる空間。<br />あなたの心と身体に寄り添う、完全個室のリラクゼーション。</p>
-
-
-          <button onClick={() => setBookingModal(true)} style={styles.button}>
-
-
-            予約する
-
-
-          </button>
-
-
+        <div style={styles.heroMedia}>
+          <img src={heroImageSrcs[currentSlide]} alt="" style={styles.heroImage} />
         </div>
-
-
       </section>
 
-
-
-
-
-      {/* News */}
-
-
-      <section id="news" style={{ ...styles.section, backgroundColor: '#f3f0ff' }}>
+      <section id="news" style={{ ...styles.section }}>
         <div style={styles.contentWrap}>
-
-
-        <h3 style={styles.h3}>お知らせ</h3>
-
-
-        <div style={styles.grid}>
-
-
-          {news.map((item, index) => (
-
-
-            <div key={index} style={styles.card}>
-
-
-              <div style={{ padding: '1.5rem' }}>
-
-
-                <p style={{ fontSize: '0.875rem', color: '#6b21a8', marginBottom: '0.5rem' }}>{item.date}</p>
-
-
-                <h4 style={{ fontSize: '1.125rem', fontWeight: 300, color: '#4c1d95', marginBottom: '0.75rem' }}>{item.title}</h4>
-
-
-                <p style={{ color: '#4b5563', fontSize: '0.875rem' }}>{item.content}</p>
-
-
+          <h3 style={styles.h3}>お知らせ</h3>
+          {newsLoading ? (
+            <p style={{ margin: '-2rem 0 1.25rem', textAlign: 'center', fontSize: '0.875rem', color: '#6b7280' }}>
+              読み込み中…
+            </p>
+          ) : null}
+          {newsLoadError ? (
+            <p style={{ margin: '-2rem 0 1.25rem', textAlign: 'center', fontSize: '0.875rem', color: '#b91c1c' }}>
+              {newsLoadError}
+            </p>
+          ) : null}
+          {!newsLoading && !newsLoadError && supabaseConfigWarning ? (
+            <p style={{ margin: '-2rem 0 1.25rem', textAlign: 'center', fontSize: '0.875rem', color: '#b91c1c' }}>
+              {supabaseConfigWarning}
+            </p>
+          ) : null}
+          <div style={styles.newsViewport}>
+            <div style={styles.newsScroller} aria-label="お知らせ一覧">
+              {newsItems.map((item, index) => (
+                <div key={item.id ?? index} style={{ ...styles.card, ...styles.newsCard }}>
+                  <div style={{ padding: '1.5rem' }}>
+                    <p style={{ fontSize: '0.75rem', color: '#6b21a8' }}>{item.date}</p>
+                  <h4
+                    style={{
+                      fontSize: '1rem',
+                      fontWeight: 400,
+                      color: '#4c1d95',
+                      marginBottom: '0.75rem',
+                      lineHeight: 1.5,
+                      overflowWrap: 'anywhere',
+                      wordBreak: 'break-word',
+                    }}
+                  >
+                    {item.title || '（タイトル未設定）'}
+                  </h4>
+                  {item.image_url ? (
+                    <div style={styles.newsImageWrap} onClick={() => openNewsImageModal(item.image_url, item.title)}>
+                      <img src={item.image_url} alt={item.title ?? ''} style={styles.newsImage} loading="lazy" />
+                    </div>
+                  ) : null}
+                  <p
+                    style={{
+                      color: '#4b5563',
+                      fontSize: '0.875rem',
+                      lineHeight: 1.7,
+                      whiteSpace: 'pre-wrap',
+                      overflowWrap: 'anywhere',
+                      wordBreak: 'break-word',
+                    }}
+                  >
+                    {item.content || ''}
+                  </p>
+                </div>
               </div>
-
-
+            ))}
             </div>
-
-
-          ))}
-
-
-        </div>
-
-
+          </div>
         </div>
       </section>
-
-
-
-
-
-      {/* Menu */}
-
 
       <section id="menu" style={styles.section}>
         <div style={styles.contentWrap}>
-
-
-        <h3 style={styles.h3}>メニュー</h3>
-
-
-        <div style={styles.grid}>
-
-
-          {services.map((service, index) => (
-
-
-            <div key={index} style={styles.card}>
-
-
-              <div style={{ height: '192px', backgroundColor: service.bgColor }} />
-
-
-              <div style={{ padding: '1.5rem' }}>
-
-
-                <h4 style={{ fontSize: '1.25rem', fontWeight: 300, color: '#4c1d95', marginBottom: '0.5rem' }}>{service.title}</h4>
-
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', color: '#6b21a8', marginBottom: '0.75rem' }}>
-
-
-                  <span>{service.duration}</span>
-
-
-                  <span style={{ fontWeight: 600 }}>{service.price}</span>
-
-
+          <h3 style={styles.h3}>メニュー</h3>
+          <div
+            style={styles.menuScroller}
+            aria-label="メニュー画像スライダー"
+            onTouchStart={handleMenuTouchStart}
+            onTouchEnd={handleMenuTouchEnd}
+          >
+            <div
+              style={{
+                ...styles.menuTrack,
+                transform: 'translateX(-' + menuSlideIndex * 100 + '%)',
+              }}
+            >
+              {menuSlides.map((slide, index) => (
+                <div key={index} style={styles.menuSlide}>
+                  <img
+                    src={slide.src}
+                    alt={slide.alt}
+                    style={styles.menuImage}
+                    loading="lazy"
+                    onClick={() => openMenuModal(index)}
+                  />
                 </div>
-
-
-                <p style={{ color: '#4b5563', fontSize: '0.875rem', lineHeight: 1.625 }}>{service.description}</p>
-
-
-              </div>
-
-
+              ))}
             </div>
-
-
-          ))}
-
-
-        </div>
-
-
+            <button
+              type="button"
+              aria-label="前のメニュー"
+              onClick={goMenuPrev}
+              style={{ ...styles.menuArrow, left: '0.5rem' }}
+            >
+              {'<'}
+            </button>
+            <button
+              type="button"
+              aria-label="次のメニュー"
+              onClick={goMenuNext}
+              style={{ ...styles.menuArrow, right: '0.5rem' }}
+            >
+              {'>'}
+            </button>
+          </div>
+          <div style={styles.menuDots} aria-label="メニューのインジケーター">
+            {menuSlides.map((_, index) => (
+              <button
+                key={index}
+                type="button"
+                aria-label={`メニュー ${index + 1} に移動`}
+                onClick={() => setMenuSlideIndex(index)}
+                style={{
+                  ...styles.menuDot,
+                  ...(index === menuSlideIndex ? styles.menuDotActive : {}),
+                }}
+              />
+            ))}
+          </div>
         </div>
       </section>
 
-
-
-
-
-      {/* Therapist */}
-
-
-      <section id="therapist" style={{ ...styles.section, backgroundColor: '#f3f0ff' }}>
+      <section id="therapist" style={{ ...styles.section }}>
         <div style={styles.contentWrap}>
-
-
-        <h3 style={styles.h3}>セラピスト</h3>
-
-
-        <div style={{ maxWidth: '512px', margin: '0 auto', backgroundColor: 'white', padding: '2rem', borderRadius: '0.5rem', textAlign: 'center', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-
-
-          <h4 style={{ fontSize: '1.875rem', fontWeight: 300, color: '#4c1d95', marginBottom: '0.5rem' }}>ユキムラ</h4>
-
-
-          <p style={{ color: '#6b21a8', marginBottom: '1.5rem' }}>施術者・店長</p>
-
-
-          <p style={{ color: '#374151', lineHeight: 1.625 }}>独自の手技で「もみ返しがないのにほぐれる」施術が得意。男性セラピストならではの圧と丁寧さで心身をケアします。</p>
-
-
-        </div>
-
-
+          <h3 style={styles.h3}>セラピスト</h3>
+          <div
+            style={{
+              maxWidth: '512px',
+              margin: '0 auto 2rem',
+              backgroundColor: 'white',
+              padding: '2rem',
+              borderRadius: '0.5rem',
+              textAlign: 'center',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+            }}
+          >
+            <img
+              src="/images/profile.jpg"
+              alt="ユキムラのプロフィール"
+              style={{ width: '160px', height: '240px', objectFit: 'cover', borderRadius: '30px', marginBottom: '' }}
+            />
+            <h4 style={{ fontSize: '1.4rem', fontWeight: 400, color: '#4c1d95', margin: '0.5rem 0 0' }}>ユキムラ</h4>
+            <p style={{ color: '#6b21a8', margin: '0 0 1rem' }}>オーナー</p>
+            <p style={{ color: '#374151', lineHeight: 1.25 }}>独自の手技で「もみ返しがないのにほぐれる」施術が得意。</p>
+            <p style={{ color: '#374151', lineHeight: 1.25 }}>男性セラピストならではの圧と丁寧さで心身をケアします。</p>
+          </div>
         </div>
       </section>
-
-
-
-
-
-      {/* Philosophy */}
-
 
       <section id="philosophy" style={styles.section}>
         <div style={styles.contentWrap}>
-
-
-        <h3 style={styles.h3}>理念とこだわり</h3>
-
-
-        <div style={{ maxWidth: '1024px', margin: '0 auto' }}>
-
-
-          <div style={{ backgroundColor: 'white', padding: '2rem', marginBottom: '2rem', borderRadius: '0.5rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-
-
-            <h4 style={{ fontSize: '1.5rem', fontWeight: 300, color: '#4c1d95', marginBottom: '1rem' }}>INTIMACYの想い</h4>
-
-
-            <p style={{ color: '#374151', lineHeight: 1.625, marginBottom: '1rem' }}>店名のINTIMACYには「寄り添い」という意味を込めています。疲れた時や癒されたい時に、気兼ねなく足を運んでいただける空間を大切にしています。</p>
-
-
-            <p style={{ color: '#374151', lineHeight: 1.625 }}>あなたの心と身体の声に耳を傾け、その日のお悩みに寄り添った施術をご提供します。</p>
-
-
+          <h3 style={styles.h3}>理念とこだわり</h3>
+          <div style={{ maxWidth: '1024px', margin: '0 auto' }}>
+            <div
+              style={{
+                backgroundColor: 'white',
+                padding: '1rem 1rem 1.5rem 1rem',
+                marginBottom: '2rem',
+                borderRadius: '0.5rem',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+              }}
+            >
+              <h4 style={{ fontSize: '1.5rem', fontWeight: 300, color: '#4c1d95', margin: '0 0.5rem 1rem' }}>INTIMACYの想い</h4>
+              <p style={{ color: '#374151', lineHeight: 1.625, marginBottom: '1rem', padding: '0 1rem'  }}>
+                店名のINTIMACYには「寄り添い」という意味を込めています。疲れた時や癒されたい時に、気兼ねなく足を運んでいただける空間を大切にしています。
+              </p>
+              <p style={{ color: '#374151', lineHeight: 1.625, padding: '0 1rem' }}>
+                あなたの心と身体の声に耳を傾け、その日のお悩みに寄り添った施術をご提供します。
+              </p>
+            </div>
           </div>
-
-
-        </div>
-
-
         </div>
       </section>
 
-
-
-
-
-      {/* FAQ */}
-
-
-      <section style={{ ...styles.section, backgroundColor: '#f3f0ff' }}>
+      <section style={{ ...styles.section }}>
         <div style={styles.contentWrap}>
-
-
-        <h3 style={styles.h3}>よくある質問</h3>
-
-
-        <div style={{ maxWidth: '1024px', margin: '0 auto' }}>
-
-
-          {faq.map((item, index) => (
-
-
-            <details key={index} style={{ backgroundColor: 'white', borderRadius: '0.5rem', marginBottom: '1rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-
-
-              <summary style={{ padding: '1.5rem', cursor: 'pointer', color: '#4c1d95', fontWeight: 300 }}>
-
-
-                {item.q}
-
-
-              </summary>
-
-
-              <div style={{ padding: '1.5rem', borderTop: '1px solid #e5e7eb', backgroundColor: '#f3f0ff', color: '#374151', fontSize: '0.875rem', lineHeight: 1.625 }}>
-
-
-                {item.a}
-
-
-              </div>
-
-
-            </details>
-
-
-          ))}
-
-
-        </div>
-
-
+          <h3 style={styles.h3}>よくある質問</h3>
+          <div style={{ maxWidth: '1024px', margin: '0 auto' }}>
+            {faq.map((item, index) => (
+              <details
+                key={index}
+                style={{
+                  backgroundColor: 'white',
+                  borderRadius: '0.5rem',
+                  marginBottom: '1rem',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                }}
+              >
+                <summary style={{ padding: '1.5rem', cursor: 'pointer', color: '#4c1d95', fontWeight: 300 }}>
+                  {item.q}
+                </summary>
+                <div
+                  style={{
+                    padding: '1.5rem',
+                    borderTop: '1px solid #e5e7eb',
+                    backgroundColor: '#f3f0ff',
+                    color: '#374151',
+                    fontSize: '0.875rem',
+                    lineHeight: 1.625,
+                  }}
+                >
+                  {item.a}
+                </div>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
-
-
-
-
-
-      {/* Access */}
-
 
       <section id="access" style={styles.section}>
         <div style={styles.contentWrap}>
-
-
-        <h3 style={styles.h3}>アクセス</h3>
-
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
-
-
-          <div style={{ backgroundColor: '#f3f0ff', padding: '2rem', borderRadius: '0.5rem' }}>
-
-
-            <div style={{ marginBottom: '1.5rem' }}>
-
-
-              <h4 style={{ fontSize: '0.875rem', color: '#6b21a8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>住所</h4>
-
-
-              <p style={{ color: '#1f2937' }}>千葉県松戸市新松戸３丁目２９２<br />曙マンション 201</p>
-
-
+          <h3 style={styles.h3}>アクセス</h3>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: `repeat(auto-fit, minmax(${isMobile ? 240 : 300}px, 1fr))`,
+              gap: '2rem',
+            }}
+          >
+            <div style={{ backgroundColor: '#f3f0ff', padding: '2rem', borderRadius: '0.5rem' }}>
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h4
+                  style={{
+                    fontSize: '0.875rem',
+                    color: '#6b21a8',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    marginBottom: '0.5rem',
+                  }}
+                >
+                  住所
+                </h4>
+                <p style={{ color: '#1f2937' }}>千葉県松戸市新松戸３丁目２９２<br />曙マンション 201</p>
+                <iframe title="INTIMACY 新松戸 アクセスマップ" 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d808.7511892265369!2d139.9144871!3d35.824358999999994!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x60189b366916aaab%3A0xb152d33377805ed6!2z5puZ44Oe44Oz44K344On44Oz!5e0!3m2!1sja!2sjp!4v1776670436066!5m2!1sja!2sjp" 
+                width="100%"
+                height="50%"
+                style={{ border: 0, borderRadius: '0.5rem', marginTop: '1rem' }}
+                allowFullScreen=""
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"></iframe>
+              </div>
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h4
+                  style={{
+                    fontSize: '0.875rem',
+                    color: '#6b21a8',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    marginBottom: '0.5rem',
+                  }}
+                >
+                  電車
+                </h4>
+                <p style={{ color: '#1f2937' }}>JR新松戸駅より徒歩9分</p>
+              </div>
+              <div>
+                <h4
+                  style={{
+                    fontSize: '0.875rem',
+                    color: '#6b21a8',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    marginBottom: '0.5rem',
+                  }}
+                >
+                  営業時間
+                </h4>
+                <p style={{ color: '#1f2937' }}>10:00～24:00 （最終受付 21:00）</p>
+              </div>
             </div>
 
 
-            <div style={{ marginBottom: '1.5rem' }}>
-
-
-              <h4 style={{ fontSize: '0.875rem', color: '#6b21a8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>電車</h4>
-
-
-              <p style={{ color: '#1f2937' }}>JR新松戸駅より徒歩9分</p>
-
-
+            <div
+              style={{
+                backgroundColor: 'white',
+                padding: '2rem',
+                borderRadius: '0.5rem',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                border: '1px solid #e5e7eb',
+                textAlign: 'center',
+                marginBottom: '2rem',
+              }}
+            >
+              <h4 style={{ fontSize: '1.25rem', fontWeight: 400, color: '#4c1d95', marginBottom: '1.5rem' }}>
+                ご予約・ご相談
+              </h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div>
+                  <a
+                    href="https://lin.ee/wJ21xSXg"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ ...styles.button, backgroundColor: '#10b981', textAlign: 'center', textDecoration: 'none' }}
+                  >
+                    LINE で予約
+                  </a>
+                  <p style={{ marginTop: '0.5rem', color: '#6b7280', fontSize: '0.875rem', lineHeight: 1.6 }}>
+                    友達追加後、メッセージで可能。
+                  </p>
+                  <p style={{ color: '#6b7280', fontSize: '0.875rem', lineHeight: 1.6 }}>
+                    相談もお気軽にどうぞ！
+                  </p>
+                </div>
+                <div>
+                  <a
+                    href="https://beauty.hotpepper.jp/kr/slnH000785676/coupon/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ ...styles.button, textAlign: 'center', textDecoration: 'none', display: 'block' }}
+                  >
+                    ホットペッパーで予約
+                  </a>
+                  <p style={{ marginTop: '0.5rem', color: '#6b7280', fontSize: '0.875rem', lineHeight: 1.6 }}>
+                    割引クーポンが豊富です。
+                  </p>
+                </div>
+                {/* <a
+                  href="tel:047-xxx-xxxx"
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    backgroundColor: '#f3f0ff',
+                    color: '#4c1d95',
+                    border: 'none',
+                    borderRadius: '0.5rem',
+                    cursor: 'pointer',
+                    textDecoration: 'none',
+                  }}
+                >
+                  電話予約
+                </a> */}
+              </div>
             </div>
-
-
-            <div>
-
-
-              <h4 style={{ fontSize: '0.875rem', color: '#6b21a8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>営業時間</h4>
-
-
-              <p style={{ color: '#1f2937' }}>10:00～21:00</p>
-
-
-            </div>
-
-
           </div>
-
-
-          <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '0.5rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)', border: '1px solid #e5e7eb' }}>
-
-
-            <h4 style={{ fontSize: '1.25rem', fontWeight: 300, color: '#4c1d95', marginBottom: '1.5rem' }}>ご予約・ご相談</h4>
-
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-
-
-              <a href="https://lin.ee/wJ21xSXg" target="_blank" rel="noopener noreferrer" style={{ ...styles.button, backgroundColor: '#10b981', textAlign: 'center', textDecoration: 'none' }}>
-
-
-                💬 LINE で予約
-
-
-              </a>
-
-
-              <button onClick={() => setBookingModal(true)} style={styles.button}>
-
-
-                ホットペッパーで予約
-
-
-              </button>
-
-
-              <a href="tel:047-xxx-xxxx" style={{ padding: '0.75rem 1.5rem', backgroundColor: '#f3f0ff', color: '#4c1d95', border: 'none', borderRadius: '0.5rem', cursor: 'pointer', textDecoration: 'none' }}>
-
-
-                📞 電話予約
-
-
-              </a>
-
-
-            </div>
-
-
-          </div>
-
-
-        </div>
-
-
         </div>
       </section>
 
-
-
-
-
-      {/* Booking Modal */}
-
-
-      {bookingModal && (
-
-
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-
-
-          <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', maxWidth: '512px', width: '100%', maxHeight: '90vh', overflow: 'auto', padding: '2rem', position: 'relative' }}>
-
-
-            <button onClick={() => setBookingModal(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', fontSize: '1.5rem' }}>
-
-
+      {menuModalOpen && (
+        <div style={styles.menuModalBackdrop} onClick={closeMenuModal}>
+          <div
+            style={styles.menuModalBody}
+            onClick={(event) => event.stopPropagation()}
+            onTouchStart={handleMenuTouchStart}
+            onTouchEnd={handleMenuTouchEnd}
+          >
+            <button type="button" aria-label="閉じる" onClick={closeMenuModal} style={styles.menuModalClose}>
               ✕
-
-
             </button>
-
-
-            <h3 style={{ fontSize: '1.875rem', fontWeight: 300, color: '#4c1d95', marginBottom: '0.5rem' }}>ご予約方法</h3>
-
-
-            <p style={{ color: '#4b5563', fontSize: '0.875rem', marginBottom: '1.5rem' }}>ご都合に合わせてお選びください</p>
-
-
-            <div style={{ backgroundColor: '#d1fae5', border: '2px solid #6ee7b7', padding: '1.5rem', borderRadius: '0.5rem', marginBottom: '1rem' }}>
-
-
-              <h4 style={{ fontWeight: 600, color: '#065f46', marginBottom: '0.5rem' }}>💬 LINE公式アカウント（推奨）</h4>
-
-
-              <p style={{ color: '#374151', fontSize: '0.875rem', marginBottom: '1rem' }}>友達追加後、簡単なメッセージで予約完了。</p>
-
-
-              <a href="https://lin.ee/wJ21xSXg" target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', padding: '0.75rem 1.5rem', backgroundColor: '#059669', color: 'white', borderRadius: '0.5rem', textDecoration: 'none', fontWeight: 600 }}>
-
-
-                LINEで予約する →
-
-
-              </a>
-
-
+            <div style={styles.menuModalSlide}>
+              <img
+                src={menuSlides[menuSlideIndex]?.src}
+                alt={menuSlides[menuSlideIndex]?.alt}
+                style={styles.menuModalImage}
+              />
             </div>
-
-
-            <div style={{ backgroundColor: '#f3f0ff', border: '2px solid #e9d5ff', padding: '1.5rem', borderRadius: '0.5rem' }}>
-
-
-              <h4 style={{ fontWeight: 600, color: '#4c1d95', marginBottom: '0.5rem' }}>🌶️ ホットペッパービューティー</h4>
-
-
-              <p style={{ color: '#374151', fontSize: '0.875rem', marginBottom: '1rem' }}>割引クーポンが豊富です。</p>
-
-
-              <a href="https://beauty.hotpepper.jp/kr/slnH000785676/" target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', padding: '0.75rem 1.5rem', backgroundColor: '#6b21a8', color: 'white', borderRadius: '0.5rem', textDecoration: 'none', fontWeight: 600 }}>
-
-
-                ホットペッパーで予約 →
-
-
-              </a>
-
-
-            </div>
-
-
+            <button
+              type="button"
+              aria-label="前のメニュー"
+              onClick={goMenuPrev}
+              style={{ ...styles.menuModalArrow, left: '-12px' }}
+            >
+              {'<'}
+            </button>
+            <button
+              type="button"
+              aria-label="次のメニュー"
+              onClick={goMenuNext}
+              style={{ ...styles.menuModalArrow, right: '-12px' }}
+            >
+              {'>'}
+            </button>
           </div>
-
-
         </div>
-
-
       )}
 
-
-
-
-
-      {/* Footer */}
-
-
-      <footer style={{ background: 'linear-gradient(to bottom, #3f0f5c, #371e5c)', color: 'white', padding: '4rem 1rem', textAlign: 'center' }}>
-
-
-        <div style={styles.contentWrap}>
-
-
-          <div style={{ marginBottom: '2rem' }}>
-
-
-            <h4 style={{ fontSize: '1.5rem', fontWeight: 300, marginBottom: '0.5rem' }}>INTIMACY</h4>
-
-
-            <p style={{ color: '#c4b5fd', fontSize: '0.875rem' }}>新松戸</p>
-
-
+      {newsImageModalOpen && newsImageModalUrl ? (
+        <div style={styles.menuModalBackdrop} onClick={closeNewsImageModal}>
+          <div style={styles.menuModalBody} onClick={(event) => event.stopPropagation()}>
+            <button
+              type="button"
+              aria-label="閉じる"
+              onClick={closeNewsImageModal}
+              style={styles.menuModalClose}
+            >
+              ×
+            </button>
+            <div style={styles.menuModalSlide}>
+              <img src={newsImageModalUrl} alt={newsImageModalAlt} style={styles.menuModalImage} />
+            </div>
           </div>
-
-
-          <p style={{ color: '#c4b5fd', fontSize: '0.875rem' }}>&copy; 2025 INTIMACY 新松戸. All rights reserved.</p>
-
-
         </div>
+      ) : null}
 
-
+      <footer style={{ background: 'linear-gradient(to bottom, #3f0f5c, #371e5c)', color: 'white', padding: '1rem', textAlign: 'center' }}>
+        <div style={styles.contentWrap}>
+          <div style={{ marginBottom: '1rem' }}>
+            <h4 style={{ fontSize: '1.5rem', fontWeight: 300 }}>INTIMACY</h4>
+            <p style={{ color: '#c4b5fd', fontSize: '0.875rem' }}>新松戸</p>
+          </div>
+          <p style={{ color: '#c4b5fd', fontSize: '0.875rem' }}>&copy; 2025 INTIMACY 新松戸. All rights reserved.</p>
+        </div>
       </footer>
-
-
     </div>
-
-
   );
-
-
 }
 
-
-
-
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/admin" element={<AdminNews />} />
+      <Route path="/" element={<MainSite />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}

@@ -1,0 +1,165 @@
+0 verbose cli C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js
+1 info using npm@10.9.2
+2 info using node@v22.17.0
+3 silly config load:file:C:\Program Files\nodejs\node_modules\npm\npmrc
+4 silly config load:file:C:\Users\yu\intimacy-relax\.npmrc
+5 silly config load:file:C:\Users\yu\.npmrc
+6 silly config load:file:C:\Users\yu\AppData\Roaming\npm\etc\npmrc
+7 verbose title npm install @supabase/supabase-js react-router-dom
+8 verbose argv "install" "@supabase/supabase-js" "react-router-dom" "--cache" ".npm-cache" "--no-audit" "--no-fund"
+9 verbose logfile logs-max:10 dir:C:\Users\yu\intimacy-relax\.npm-cache\_logs\2026-04-16T12_59_12_720Z-
+10 verbose logfile C:\Users\yu\intimacy-relax\.npm-cache\_logs\2026-04-16T12_59_12_720Z-debug-0.log
+11 silly logfile done cleaning log files
+12 silly packumentCache heap:4345298944 maxSize:1086324736 maxEntrySize:543162368
+13 silly idealTree buildDeps
+14 silly fetch manifest @supabase/supabase-js@*
+15 silly packumentCache full:https://registry.npmjs.org/@supabase%2fsupabase-js cache-miss
+16 http fetch GET 200 https://registry.npmjs.org/@supabase%2fsupabase-js 601ms (cache miss)
+17 silly packumentCache full:https://registry.npmjs.org/@supabase%2fsupabase-js set size:undefined disposed:false
+18 silly fetch manifest react-router-dom@*
+19 silly packumentCache full:https://registry.npmjs.org/react-router-dom cache-miss
+20 http fetch GET 200 https://registry.npmjs.org/react-router-dom 192ms (cache miss)
+21 silly packumentCache full:https://registry.npmjs.org/react-router-dom set size:undefined disposed:false
+22 silly fetch manifest react@^18.2.0
+23 silly packumentCache full:https://registry.npmjs.org/react cache-miss
+24 http fetch GET 200 https://registry.npmjs.org/react 220ms (cache miss)
+25 silly packumentCache full:https://registry.npmjs.org/react set size:undefined disposed:false
+26 silly fetch manifest react-dom@^18.2.0
+27 silly packumentCache full:https://registry.npmjs.org/react-dom cache-miss
+28 http fetch GET 200 https://registry.npmjs.org/react-dom 267ms (cache miss)
+29 silly packumentCache full:https://registry.npmjs.org/react-dom set size:undefined disposed:false
+30 silly placeDep ROOT @supabase/supabase-js@2.103.2 OK for: intimacy-relax@1.0.0 want: *
+31 silly placeDep ROOT react-router-dom@7.14.1 OK for: intimacy-relax@1.0.0 want: *
+32 silly fetch manifest @supabase/auth-js@2.103.2
+33 silly packumentCache full:https://registry.npmjs.org/@supabase%2fauth-js cache-miss
+34 silly fetch manifest @supabase/storage-js@2.103.2
+35 silly packumentCache full:https://registry.npmjs.org/@supabase%2fstorage-js cache-miss
+36 silly fetch manifest @supabase/realtime-js@2.103.2
+37 silly packumentCache full:https://registry.npmjs.org/@supabase%2frealtime-js cache-miss
+38 silly fetch manifest @supabase/functions-js@2.103.2
+39 silly packumentCache full:https://registry.npmjs.org/@supabase%2ffunctions-js cache-miss
+40 silly fetch manifest @supabase/postgrest-js@2.103.2
+41 silly packumentCache full:https://registry.npmjs.org/@supabase%2fpostgrest-js cache-miss
+42 silly fetch manifest react-router@7.14.1
+43 silly packumentCache full:https://registry.npmjs.org/react-router cache-miss
+44 http fetch GET 200 https://registry.npmjs.org/@supabase%2fauth-js 72ms (cache miss)
+45 silly packumentCache full:https://registry.npmjs.org/@supabase%2fauth-js set size:undefined disposed:false
+46 http fetch GET 200 https://registry.npmjs.org/@supabase%2ffunctions-js 200ms (cache miss)
+47 silly packumentCache full:https://registry.npmjs.org/@supabase%2ffunctions-js set size:undefined disposed:false
+48 http fetch GET 200 https://registry.npmjs.org/@supabase%2fstorage-js 223ms (cache miss)
+49 silly packumentCache full:https://registry.npmjs.org/@supabase%2fstorage-js set size:undefined disposed:false
+50 http fetch GET 200 https://registry.npmjs.org/@supabase%2frealtime-js 259ms (cache miss)
+51 silly packumentCache full:https://registry.npmjs.org/@supabase%2frealtime-js set size:undefined disposed:false
+52 http fetch GET 200 https://registry.npmjs.org/@supabase%2fpostgrest-js 266ms (cache miss)
+53 silly packumentCache full:https://registry.npmjs.org/@supabase%2fpostgrest-js set size:undefined disposed:false
+54 http fetch GET 200 https://registry.npmjs.org/react-router 309ms (cache miss)
+55 silly packumentCache full:https://registry.npmjs.org/react-router set size:undefined disposed:false
+56 silly placeDep ROOT @supabase/auth-js@2.103.2 OK for: @supabase/supabase-js@2.103.2 want: 2.103.2
+57 silly placeDep ROOT @supabase/functions-js@2.103.2 OK for: @supabase/supabase-js@2.103.2 want: 2.103.2
+58 silly placeDep ROOT @supabase/postgrest-js@2.103.2 OK for: @supabase/supabase-js@2.103.2 want: 2.103.2
+59 silly placeDep ROOT @supabase/realtime-js@2.103.2 OK for: @supabase/supabase-js@2.103.2 want: 2.103.2
+60 silly placeDep ROOT @supabase/storage-js@2.103.2 OK for: @supabase/supabase-js@2.103.2 want: 2.103.2
+61 silly fetch manifest ws@^8.18.2
+62 silly packumentCache full:https://registry.npmjs.org/ws cache-miss
+63 silly fetch manifest @supabase/phoenix@^0.4.0
+64 silly packumentCache full:https://registry.npmjs.org/@supabase%2fphoenix cache-miss
+65 silly fetch manifest iceberg-js@^0.8.1
+66 silly packumentCache full:https://registry.npmjs.org/iceberg-js cache-miss
+67 http fetch GET 200 https://registry.npmjs.org/iceberg-js 54ms (cache miss)
+68 silly packumentCache full:https://registry.npmjs.org/iceberg-js set size:undefined disposed:false
+69 http fetch GET 200 https://registry.npmjs.org/@supabase%2fphoenix 56ms (cache miss)
+70 silly packumentCache full:https://registry.npmjs.org/@supabase%2fphoenix set size:undefined disposed:false
+71 http fetch GET 200 https://registry.npmjs.org/ws 58ms (cache miss)
+72 silly packumentCache full:https://registry.npmjs.org/ws set size:undefined disposed:false
+73 silly fetch manifest bufferutil@^4.0.1
+74 silly packumentCache full:https://registry.npmjs.org/bufferutil cache-miss
+75 http fetch GET 200 https://registry.npmjs.org/bufferutil 44ms (cache miss)
+76 silly packumentCache full:https://registry.npmjs.org/bufferutil set size:undefined disposed:false
+77 silly fetch manifest utf-8-validate@>=5.0.2
+78 silly packumentCache full:https://registry.npmjs.org/utf-8-validate cache-miss
+79 http fetch GET 200 https://registry.npmjs.org/utf-8-validate 319ms (cache miss)
+80 silly packumentCache full:https://registry.npmjs.org/utf-8-validate set size:undefined disposed:false
+81 silly placeDep ROOT @supabase/phoenix@0.4.0 OK for: @supabase/realtime-js@2.103.2 want: ^0.4.0
+82 silly placeDep node_modules/@supabase/realtime-js ws@8.20.0 OK for: @supabase/realtime-js@2.103.2 want: ^8.18.2
+83 silly placeDep ROOT iceberg-js@0.8.1 OK for: @supabase/storage-js@2.103.2 want: ^0.8.1
+84 silly fetch manifest react@>=18
+85 silly packumentCache full:https://registry.npmjs.org/react cache-miss
+86 http cache https://registry.npmjs.org/react 24ms (cache hit)
+87 silly packumentCache full:https://registry.npmjs.org/react set size:6609926 disposed:false
+88 silly fetch manifest react-dom@>=18
+89 silly packumentCache full:https://registry.npmjs.org/react-dom cache-miss
+90 http cache https://registry.npmjs.org/react-dom 20ms (cache hit)
+91 silly packumentCache full:https://registry.npmjs.org/react-dom set size:8798957 disposed:false
+92 silly placeDep ROOT react-router@7.14.1 OK for: react-router-dom@7.14.1 want: 7.14.1
+93 silly fetch manifest cookie@^1.0.1
+94 silly packumentCache full:https://registry.npmjs.org/cookie cache-miss
+95 silly fetch manifest set-cookie-parser@^2.6.0
+96 silly packumentCache full:https://registry.npmjs.org/set-cookie-parser cache-miss
+97 http fetch GET 200 https://registry.npmjs.org/cookie 67ms (cache miss)
+98 silly packumentCache full:https://registry.npmjs.org/cookie set size:undefined disposed:false
+99 http fetch GET 200 https://registry.npmjs.org/set-cookie-parser 75ms (cache miss)
+100 silly packumentCache full:https://registry.npmjs.org/set-cookie-parser set size:undefined disposed:false
+101 silly placeDep node_modules/react-router cookie@1.1.1 OK for: react-router@7.14.1 want: ^1.0.1
+102 silly placeDep ROOT set-cookie-parser@2.7.2 OK for: react-router@7.14.1 want: ^2.6.0
+103 silly reify moves {}
+104 verbose reify failed optional dependency C:\Users\yu\intimacy-relax\node_modules\fsevents
+105 silly reify mark deleted [ 'C:\\Users\\yu\\intimacy-relax\\node_modules\\fsevents' ]
+106 http cache @supabase/storage-js@https://registry.npmjs.org/@supabase/storage-js/-/storage-js-2.103.2.tgz 0ms (cache hit)
+107 http cache set-cookie-parser@https://registry.npmjs.org/set-cookie-parser/-/set-cookie-parser-2.7.2.tgz 0ms (cache hit)
+108 http cache react-router@https://registry.npmjs.org/react-router/-/react-router-7.14.1.tgz 0ms (cache hit)
+109 http cache @supabase/phoenix@https://registry.npmjs.org/@supabase/phoenix/-/phoenix-0.4.0.tgz 0ms (cache hit)
+110 http cache iceberg-js@https://registry.npmjs.org/iceberg-js/-/iceberg-js-0.8.1.tgz 0ms (cache hit)
+111 http cache @supabase/realtime-js@https://registry.npmjs.org/@supabase/realtime-js/-/realtime-js-2.103.2.tgz 0ms (cache hit)
+112 http cache @supabase/functions-js@https://registry.npmjs.org/@supabase/functions-js/-/functions-js-2.103.2.tgz 0ms (cache hit)
+113 http cache @supabase/postgrest-js@https://registry.npmjs.org/@supabase/postgrest-js/-/postgrest-js-2.103.2.tgz 0ms (cache hit)
+114 http cache @supabase/auth-js@https://registry.npmjs.org/@supabase/auth-js/-/auth-js-2.103.2.tgz 0ms (cache hit)
+115 http cache react-router-dom@https://registry.npmjs.org/react-router-dom/-/react-router-dom-7.14.1.tgz 0ms (cache hit)
+116 http cache @supabase/supabase-js@https://registry.npmjs.org/@supabase/supabase-js/-/supabase-js-2.103.2.tgz 0ms (cache hit)
+117 silly tarball no local data for @supabase/storage-js@https://registry.npmjs.org/@supabase/storage-js/-/storage-js-2.103.2.tgz. Extracting by manifest.
+118 silly tarball no local data for set-cookie-parser@https://registry.npmjs.org/set-cookie-parser/-/set-cookie-parser-2.7.2.tgz. Extracting by manifest.
+119 silly tarball no local data for react-router@https://registry.npmjs.org/react-router/-/react-router-7.14.1.tgz. Extracting by manifest.
+120 silly tarball no local data for @supabase/phoenix@https://registry.npmjs.org/@supabase/phoenix/-/phoenix-0.4.0.tgz. Extracting by manifest.
+121 silly tarball no local data for iceberg-js@https://registry.npmjs.org/iceberg-js/-/iceberg-js-0.8.1.tgz. Extracting by manifest.
+122 silly tarball no local data for @supabase/realtime-js@https://registry.npmjs.org/@supabase/realtime-js/-/realtime-js-2.103.2.tgz. Extracting by manifest.
+123 http cache cookie@https://registry.npmjs.org/cookie/-/cookie-1.1.1.tgz 0ms (cache hit)
+124 silly tarball no local data for @supabase/functions-js@https://registry.npmjs.org/@supabase/functions-js/-/functions-js-2.103.2.tgz. Extracting by manifest.
+125 silly tarball no local data for @supabase/postgrest-js@https://registry.npmjs.org/@supabase/postgrest-js/-/postgrest-js-2.103.2.tgz. Extracting by manifest.
+126 silly tarball no local data for @supabase/auth-js@https://registry.npmjs.org/@supabase/auth-js/-/auth-js-2.103.2.tgz. Extracting by manifest.
+127 silly tarball no local data for react-router-dom@https://registry.npmjs.org/react-router-dom/-/react-router-dom-7.14.1.tgz. Extracting by manifest.
+128 silly tarball no local data for @supabase/supabase-js@https://registry.npmjs.org/@supabase/supabase-js/-/supabase-js-2.103.2.tgz. Extracting by manifest.
+129 http cache ws@https://registry.npmjs.org/ws/-/ws-8.20.0.tgz 0ms (cache hit)
+130 silly tarball no local data for cookie@https://registry.npmjs.org/cookie/-/cookie-1.1.1.tgz. Extracting by manifest.
+131 silly tarball no local data for ws@https://registry.npmjs.org/ws/-/ws-8.20.0.tgz. Extracting by manifest.
+132 http fetch GET 200 https://registry.npmjs.org/set-cookie-parser/-/set-cookie-parser-2.7.2.tgz 106ms (cache miss)
+133 http fetch GET 200 https://registry.npmjs.org/iceberg-js/-/iceberg-js-0.8.1.tgz 123ms (cache miss)
+134 http fetch GET 200 https://registry.npmjs.org/react-router-dom/-/react-router-dom-7.14.1.tgz 236ms (cache miss)
+135 http fetch GET 200 https://registry.npmjs.org/cookie/-/cookie-1.1.1.tgz 243ms (cache miss)
+136 http fetch GET 200 https://registry.npmjs.org/@supabase/phoenix/-/phoenix-0.4.0.tgz 261ms (cache miss)
+137 http fetch GET 200 https://registry.npmjs.org/@supabase/storage-js/-/storage-js-2.103.2.tgz 286ms (cache miss)
+138 http fetch GET 200 https://registry.npmjs.org/ws/-/ws-8.20.0.tgz 286ms (cache miss)
+139 http fetch GET 200 https://registry.npmjs.org/@supabase/functions-js/-/functions-js-2.103.2.tgz 408ms (cache miss)
+140 http fetch GET 200 https://registry.npmjs.org/@supabase/postgrest-js/-/postgrest-js-2.103.2.tgz 408ms (cache miss)
+141 http fetch GET 200 https://registry.npmjs.org/@supabase/supabase-js/-/supabase-js-2.103.2.tgz 412ms (cache miss)
+142 http fetch GET 200 https://registry.npmjs.org/@supabase/realtime-js/-/realtime-js-2.103.2.tgz 442ms (cache miss)
+143 http fetch GET 200 https://registry.npmjs.org/react-router/-/react-router-7.14.1.tgz 498ms (cache miss)
+144 http fetch GET 200 https://registry.npmjs.org/@supabase/auth-js/-/auth-js-2.103.2.tgz 658ms (cache miss)
+145 silly ADD node_modules/set-cookie-parser
+146 silly ADD node_modules/react-router
+147 silly ADD node_modules/react-router/node_modules/cookie
+148 silly ADD node_modules/iceberg-js
+149 silly ADD node_modules/@supabase/phoenix
+150 silly ADD node_modules/@supabase/storage-js
+151 silly ADD node_modules/@supabase/realtime-js
+152 silly ADD node_modules/@supabase/realtime-js/node_modules/ws
+153 silly ADD node_modules/@supabase/postgrest-js
+154 silly ADD node_modules/@supabase/functions-js
+155 silly ADD node_modules/@supabase/auth-js
+156 silly ADD node_modules/react-router-dom
+157 silly ADD node_modules/@supabase/supabase-js
+158 silly ADD
+159 verbose cwd C:\Users\yu\intimacy-relax
+160 verbose os Windows_NT 10.0.26200
+161 verbose node v22.17.0
+162 verbose npm  v10.9.2
+163 verbose exit 0
+164 info ok
