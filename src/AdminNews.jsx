@@ -1,5 +1,6 @@
+'use client';
+
 import React, { useEffect, useMemo, useState } from 'react';
-import { Navigate } from 'react-router-dom';
 import { isSupabaseConfigured, supabase, supabaseConfigWarning } from './supabaseClient';
 
 const pageStyles = {
@@ -91,7 +92,7 @@ function formatDateInput(value) {
 }
 
 export default function AdminNews() {
-  const [isMobile, setIsMobile] = useState(() => window.matchMedia('(max-width: 768px)').matches);
+  const [isMobile, setIsMobile] = useState(false);
   const [session, setSession] = useState(null);
   const [checkingSession, setCheckingSession] = useState(true);
 
@@ -383,7 +384,7 @@ export default function AdminNews() {
         <div style={cardStyles}>
           <h1 style={{ fontSize: 22, margin: 0, color: '#4c1d95' }}>お知らせ管理</h1>
           <p style={{ marginTop: 12, color: '#4b5563', fontSize: 14, lineHeight: 1.7 }}>
-            Supabaseの環境変数が未設定です。`REACT_APP_SUPABASE_URL` と `REACT_APP_SUPABASE_ANON_KEY` を設定してください。
+            Supabaseの環境変数が未設定です。`NEXT_PUBLIC_SUPABASE_URL` と `NEXT_PUBLIC_SUPABASE_ANON_KEY` を設定してください。
           </p>
           <p style={{ marginTop: 8, color: '#6b7280', fontSize: 13 }}>
             いったん公開ページへ戻る場合は <a href="/">/</a>
@@ -405,7 +406,7 @@ export default function AdminNews() {
 
   // optional: allow /admin?redirect=1 pattern later
   const canRender = Boolean(supabase);
-  if (!canRender) return <Navigate to="/" replace />;
+  if (!canRender) return null;
 
   if (!session) {
     return (
